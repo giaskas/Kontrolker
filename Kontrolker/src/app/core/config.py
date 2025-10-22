@@ -1,0 +1,1 @@
+#Configuración global, variables de entorno, logs, seguridad.

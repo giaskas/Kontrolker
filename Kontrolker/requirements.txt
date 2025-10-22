@@ -1,0 +1,9 @@
+fastapi==0.115.11
+uvicorn[standard]==0.34.0
+sqlmodel==0.0.27
+SQLAlchemy==2.0.44
+pydantic==2.10.6
+python-dotenv==1.1.1
+python-multipart==0.0.20
+httpx==0.28.1
+orjson==3.10.15

@@ -1,5 +1,30 @@
+# 🐍 Entorno virtual
 venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 *.db
+
+# ⚙️ Archivos de entorno local
 .env
+.env.*
+!.env.example   # Se permite el de ejemplo
+*.log
+
+# 💾 Archivos temporales de VSCode, OS o cachés
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 🐋 Docker y builds
+*.pid
+*.tar
+*.log
+*.lock
+
+# 📦 Dependencias o compilados
+dist/
+build/
+*.egg-info/

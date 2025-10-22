@@ -10,41 +10,44 @@ API de Orquestación de Contenedores Simplificada, que ofrece una capa de abstra
 
 Antes de iniciar, asegúrate de tener instalado:
 
-🐍 Python 3.10 o superior
 
-🧰 Git
+ Python 3.10 o superior
+ Git
+ Docker Desktop (opcional, solo si quieres correrlo en contenedor)
 
-🐋 Docker Desktop (opcional, solo si quieres correrlo en contenedor)
 
-🧰 1️⃣ Clonar el repositorio
+1️⃣ Clonar el repositorio
+
 git clone https://github.com/TU_USUARIO/kontrolker.git
 cd kontrolker
 
-🐍 2️⃣ Crear y activar el entorno virtual
+2️⃣ Crear y activar el entorno virtual
+ 
 python -m venv venv
 venv\Scripts\activate
 
 
 Cuando esté activo, verás (venv) al inicio de tu línea de comandos.
 
-📦 3️⃣ Instalar dependencias
+3️⃣ Instalar dependencias
+ 
 pip install -r requirements.txt
 
-⚙️ 4️⃣ Configurar el entorno (.env)
-
+⚙️4️⃣ Configurar el entorno (.env)
 Copia el archivo de ejemplo y renómbralo:
 
-copy .env.example .env
 
+copy .env.example .env
 
 Abre el archivo .env y verifica que contenga lo siguiente:
 
 ENV=dev
 DB_URL=sqlite:///./kontrolker.db
 
-🧠 5️⃣ Configurar el path del proyecto
 
+5️⃣ Configurar el path del proyecto
 FastAPI está dentro de la carpeta src/, así que se necesita agregarla al PYTHONPATH:
+
 
 $env:PYTHONPATH = (Resolve-Path .\src).Path
 

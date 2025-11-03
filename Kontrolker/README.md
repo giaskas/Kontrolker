@@ -117,4 +117,5 @@ uvicorn --app-dir src app.main:app --reload
 
 Puedes editar los valores de DB_URL y ENV según tu entorno.
 uvicorn --app-dir src app.main:app --reload
+si
 -

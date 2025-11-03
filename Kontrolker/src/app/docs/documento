@@ -1,1 +1,18 @@
-Documentos, ejemplos, decisiones.Sirve para acordarte o mostrar a otros por qué hiciste algo.
+Pasos que segui  para la creacion de la api kontrolker (manejo de contenedores en docker)
+
+    1- hacer que la api respire por un puerto y
+    2- hacer un endpoint sencillo y que me marque OK
+    3- hacer enpoints de crud de projects y services en carpeta de routers 
+    4- darle prefijos a cada archivo y tags para mejor manejo de documentacion
+    5- asignar schemas para validacion de datos de entrada y salida
+    6- exportar e importarlos en los inits
+    7- hacer un session.py para la conexion a la base de datos
+    8- crear models para la base de datos, estructura de las tablas de projects y services
+    9- poner los models dentro de los inits para una importacion mas limpia
+    10- modificamosel main para que cuando arranque, cree toda la base de datos con los models (si es que no existe)
+    11- creamos deps.py en la carpeta de db, esto para decirle a FastApi (framework que se anda utilizando), "por cada request, crea una sesion de base de datos, usala dentro del endpoint y cuando acabes la cierras"
+    12- para poder ver la base de datos puedes usar una de estas 3:
+            * DB Browser for SQLite (gratis)
+            * una extensión de VS Code tipo “SQLite Viewer”
+            * con Python en consola
+

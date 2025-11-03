@@ -1,89 +1,145 @@
-# routers/services.py
-from fastapi import APIRouter, HTTPException, status, Query
-from pydantic import BaseModel, Field
+# src.app/routers/services.py
+from datetime import datetime
+from typing import List, Optional
+
+from fastapi import APIRouter, HTTPException, Query, status, Depends
+from sqlalchemy.orm import Session
+
+from ..schemas import ServiceCreate, ServiceRead, ServiceUpdate
+from ..db.deps import get_db
+from ..models.service import Service
+from ..models.project import Project
 
 router = APIRouter(
-    prefix="/services",          # 👈 prefijo propio del recurso
-    tags=["Services"],           # 👈 se agrupa en /docs
+    prefix="/services",
+    tags=["Services"],
 )
 
-# ====== Schemas (MVP) ======
-class Port(BaseModel):
-    host: int = Field(ge=1, le=65535)
-    container: int = Field(ge=1, le=65535)
-
-class ServiceCreate(BaseModel):
-    project_id: int
-    name: str
-    image: str | None = None
-    ports: list[Port] = []
-
-class ServiceRead(BaseModel):
-    id: int
-    project_id: int
-    name: str
-    image: str | None = None
-    ports: list[Port] = []
-
-# ====== Endpoints ======
 
 @router.post(
     "",
     response_model=ServiceRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Crear un servicio",
-    description="Crea un servicio ligado a un proyecto. `image` es obligatoria en el negocio real."
 )
-def create_service(payload: ServiceCreate):
-    # validación de negocio del paso 8
+def create_service(payload: ServiceCreate, db: Session = Depends(get_db)):
+    # 1) validar que exista el project
+    project = db.query(Project).filter(
+        Project.id == payload.project_id,
+        Project.deleted_at.is_(None)
+    ).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # 2) validación de negocio que ya traía tu MVP
     if not payload.image:
         raise HTTPException(status_code=422, detail="image is required")
 
-    # ejemplo de duplicado de host port dentro del mismo service
-    host_ports = [p.host for p in payload.ports]
-    if len(host_ports) != len(set(host_ports)):
-        raise HTTPException(status_code=422, detail="Host port duplicated")
-
-    return ServiceRead(
-        id=1,
+    now = datetime.utcnow()
+    service = Service(
         project_id=payload.project_id,
         name=payload.name,
         image=payload.image,
-        ports=payload.ports,
+        ports=[p.model_dump() for p in payload.ports],
+        env=payload.env,
+        resources=payload.resources.model_dump() if payload.resources else None,
+        created_at=now,
+        updated_at=now,
+        deleted_at=None,
     )
+    db.add(service)
+    db.commit()
+    db.refresh(service)
+    return service
 
 
 @router.get(
     "",
-    response_model=list[ServiceRead],
-    summary="Listar servicios (con filtro por proyecto)"
+    response_model=List[ServiceRead],
+    summary="Listar services (con filtro por project_id)"
 )
-def list_services(project_id: int | None = Query(default=None)):
-    """
-    Si mandas ?project_id=1 te regreso solo los de ese proyecto.
-    Si no mandas nada, te regreso todos.
-    """
-    dummy = [
-        ServiceRead(id=1, project_id=1, name="db", image="postgres:16", ports=[]),
-        ServiceRead(id=2, project_id=2, name="api", image="myapp:latest", ports=[]),
-    ]
+def list_services(
+    project_id: Optional[int] = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Service).filter(Service.deleted_at.is_(None))
     if project_id is not None:
-        return [s for s in dummy if s.project_id == project_id]
-    return dummy
+        query = query.filter(Service.project_id == project_id)
+    return query.all()
 
 
 @router.get(
     "/{service_id}",
     response_model=ServiceRead,
-    summary="Obtener servicio por id"
 )
-def get_service(service_id: int):
-    if service_id == 999:
+def get_service(service_id: int, db: Session = Depends(get_db)):
+    service = db.query(Service).filter(
+        Service.id == service_id,
+        Service.deleted_at.is_(None)
+    ).first()
+    if not service:
         raise HTTPException(status_code=404, detail="Not found")
-    return ServiceRead(
-        id=service_id,
-        project_id=1,
-        name="db",
-        image="postgres:16",
-        ports=[],
-    )
+    return service
+
+
+@router.patch(
+    "/{service_id}",
+    response_model=ServiceRead,
+)
+def update_service(
+    service_id: int,
+    payload: ServiceUpdate,
+    db: Session = Depends(get_db),
+):
+    service = db.query(Service).filter(
+        Service.id == service_id,
+        Service.deleted_at.is_(None)
+    ).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    if payload.project_id is not None:
+        # validar que exista el nuevo project
+        project = db.query(Project).filter(
+            Project.id == payload.project_id,
+            Project.deleted_at.is_(None)
+        ).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        service.project_id = payload.project_id
+
+    if payload.name is not None:
+        service.name = payload.name
+
+    if payload.image is not None:
+        service.image = payload.image
+
+    if payload.ports is not None:
+        service.ports = [p.model_dump() for p in payload.ports]
+
+    if payload.env is not None:
+        service.env = payload.env
+
+    if payload.resources is not None:
+        service.resources = payload.resources.model_dump()
+
+    service.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(service)
+    return service
+
+
+@router.delete(
+    "/{service_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_service(service_id: int, db: Session = Depends(get_db)):
+    service = db.query(Service).filter(
+        Service.id == service_id,
+        Service.deleted_at.is_(None)
+    ).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    service.deleted_at = datetime.utcnow()
+    db.commit()
+    return None

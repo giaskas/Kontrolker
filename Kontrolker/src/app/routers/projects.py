@@ -45,7 +45,7 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
 
 
 @router.get(
-    "",
+    "/read",
     response_model=List[ProjectRead],
 )
 def list_projects(

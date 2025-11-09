@@ -5,7 +5,8 @@ from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
-from app.routers import projects_router, services_router
+
+from app.routers import projects_router, services_router,containers_router
 from app.db.session import engine
 from app.models import Base
 
@@ -29,6 +30,8 @@ if STATIC_DIR.exists():
 # router padre con versión
 api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(projects_router)
+api_router.include_router(containers_router)   
+
 api_router.include_router(services_router)
 
 app.include_router(api_router)

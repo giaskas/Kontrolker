@@ -7,6 +7,11 @@ from .services import (
     Port,
     Resources,
 )
+from .containers import (
+    ContainerCreateFromService,
+    ContainerCreateInline,
+    ContainerRead,
+)
 
 __all__ = [
     "ProjectCreate",
@@ -17,4 +22,7 @@ __all__ = [
     "ServiceUpdate",
     "Port",
     "Resources",
+    "ContainerCreateFromService",
+    "ContainerCreateInline",
+    "ContainerRead"
 ]

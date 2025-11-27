@@ -1,4 +1,3 @@
-# src_app/routers/__init__.py
 from .projects import router as projects_router
 from .services import router as services_router
 from .containers import router as containers_router

@@ -1,11 +1,13 @@
-# src_app/schemas/__init__.py
+# src/app/schemas/__init__.py
+
 from .project import ProjectCreate, ProjectRead, ProjectUpdate
 from .services import (
+    PortMapping,
+    ResourceSpec,
+    ServiceBase,
     ServiceCreate,
-    ServiceRead,
     ServiceUpdate,
-    Port,
-    Resources,
+    ServiceRead,
 )
 from .containers import (
     ContainerCreateFromService,
@@ -17,12 +19,13 @@ __all__ = [
     "ProjectCreate",
     "ProjectRead",
     "ProjectUpdate",
+    "PortMapping",
+    "ResourceSpec",
+    "ServiceBase",
     "ServiceCreate",
-    "ServiceRead",
     "ServiceUpdate",
-    "Port",
-    "Resources",
+    "ServiceRead",
     "ContainerCreateFromService",
     "ContainerCreateInline",
-    "ContainerRead"
+    "ContainerRead",
 ]
